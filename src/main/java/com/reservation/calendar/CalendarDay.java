@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
         uniqueConstraints = {@UniqueConstraint(columnNames = {"date", "place_id"})})
 @Data
 @Builder
-@AllArgsConstructor
+//@AllArgsConstructor
 @NoArgsConstructor
 public class CalendarDay {
 
