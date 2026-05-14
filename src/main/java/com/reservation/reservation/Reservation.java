@@ -30,10 +30,14 @@ public class Reservation {
     @JoinColumn(name = "table_id", nullable = false)
     private TableEntity table;
 
+    @Column
     private LocalDate date;
 
     @Column(name = "start_time")
     private LocalTime startTime;
+
+    @Column(name = "end_time")
+    private LocalTime endTime;
 
     @Column(name = "duration_minutes")
     private Integer durationMinutes;

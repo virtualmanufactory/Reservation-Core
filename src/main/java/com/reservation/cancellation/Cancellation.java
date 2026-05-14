@@ -14,6 +14,7 @@ public class Cancellation {
     @JoinColumn(name = "confirmation_id", nullable = false)
     private Confirmation confirmation;
 
+    @Column
     private Boolean confirmed;
 
     // Getters and setters

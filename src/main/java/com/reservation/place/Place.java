@@ -1,8 +1,10 @@
 package com.reservation.place;
 
+import com.reservation.calendar.CalendarDay;
 import com.reservation.table.TableEntity;
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -27,5 +29,8 @@ public class Place {
 
     @OneToMany(mappedBy = "places")
     private Set<TableEntity> tables;
-    // Getters and setters
+
+    @OneToMany(mappedBy = "places", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CalendarDay> days = new HashSet<>();
+
 }

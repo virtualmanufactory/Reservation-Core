@@ -3,9 +3,12 @@ package com.reservation.reservation;
 import com.reservation.dto.CreateReservationFormDTO;
 import com.reservation.orderer.Orderer;
 import com.reservation.orderer.OrdererRepository;
+import com.reservation.table.TableEntity;
 import com.reservation.table.TableRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalTime;
 
 @Service
 public class ReservationService {
@@ -24,7 +27,6 @@ public class ReservationService {
 
     @Transactional
     public Reservation createReservation(CreateReservationFormDTO dto) {
-        // Sprawdź, czy zamawiający już istnieje (np. po e-mailu)
         Orderer orderer = (Orderer) ordererRepository.findByEmail(dto.email())
                 .orElseGet(() -> {
                     Orderer newOrderer = new Orderer();
@@ -35,20 +37,25 @@ public class ReservationService {
                     return ordererRepository.save(newOrderer);
                 });
 
-        //Znajdź odpowiedni timeTable na podstawie daty zamówienia i godziny
+        LocalTime endTime = dto.startTime().plusMinutes(dto.durationMinutes());
 
-        // Wybierz wolny stół (tu zakładamy istnienie metody findAvailableTable)
+        TableEntity table = tableRepository.findFirstAvailableTable(
+                dto.placeId(),
+                dto.date(),
+                dto.startTime(),
+                endTime,
+                dto.peopleCount()
+        ).orElseThrow(() -> new IllegalStateException("Brak wolnego stolika na wybraną datę i godzinę"));
 
-
-        // Utwórz i zapisz rezerwację
         Reservation reservation = new Reservation();
         reservation.setOrderer(orderer);
-        //reservation.setTable(table);
+        reservation.setTable(table);
         reservation.setDate(dto.date());
         reservation.setStartTime(dto.startTime());
+        reservation.setEndTime(endTime);
         reservation.setDurationMinutes(dto.durationMinutes());
         reservation.setPeopleCount(dto.peopleCount());
-        //create confirmation
+
         return reservationRepository.save(reservation);
     }
 }

@@ -5,6 +5,7 @@ import java.time.LocalTime;
 
 public record CreateReservationFormDTO(
    String ordererName,
+   Integer placeId,
    String ordererSurname,
    String email,
    String phoneNumber,
