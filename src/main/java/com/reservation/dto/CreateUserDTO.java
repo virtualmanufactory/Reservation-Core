@@ -7,5 +7,4 @@ public record CreateUserDTO(
     String phoneNumber,
     String login,
     String password
-) {
-}
+) { }

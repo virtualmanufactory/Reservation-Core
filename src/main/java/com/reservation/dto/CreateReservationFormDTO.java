@@ -13,6 +13,4 @@ public record CreateReservationFormDTO(
    LocalTime startTime,
    Integer durationMinutes,
    Integer peopleCount
-) {
-
-}
+) { }

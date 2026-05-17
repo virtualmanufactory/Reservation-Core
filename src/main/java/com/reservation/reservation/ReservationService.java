@@ -1,6 +1,8 @@
 package com.reservation.reservation;
 
 import com.reservation.dto.CreateReservationFormDTO;
+import com.reservation.dto.ReservationResponseDTO;
+import com.reservation.email.EmailService;
 import com.reservation.orderer.Orderer;
 import com.reservation.orderer.OrdererRepository;
 import com.reservation.table.TableEntity;
@@ -16,17 +18,19 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final OrdererRepository ordererRepository;
     private final TableRepository tableRepository;
-
+    private final EmailService emailService;
     public ReservationService(ReservationRepository reservationRepository,
                               OrdererRepository ordererRepository,
-                              TableRepository tableRepository) {
+                              TableRepository tableRepository,EmailService emailService
+                              ) {
         this.reservationRepository = reservationRepository;
         this.ordererRepository = ordererRepository;
         this.tableRepository = tableRepository;
+        this.emailService = emailService;
     }
 
     @Transactional
-    public Reservation createReservation(CreateReservationFormDTO dto) {
+    public ReservationResponseDTO createReservation(CreateReservationFormDTO dto) {
         Orderer orderer = (Orderer) ordererRepository.findByEmail(dto.email())
                 .orElseGet(() -> {
                     Orderer newOrderer = new Orderer();
@@ -56,6 +60,23 @@ public class ReservationService {
         reservation.setDurationMinutes(dto.durationMinutes());
         reservation.setPeopleCount(dto.peopleCount());
 
-        return reservationRepository.save(reservation);
+        Reservation savedReservation = reservationRepository.save(reservation);
+
+        emailService.sendReservationConfirmation(savedReservation);
+
+        return mapToResponseDTO(savedReservation);
     }
+
+    private ReservationResponseDTO mapToResponseDTO(Reservation reservation) {
+        return new ReservationResponseDTO(
+                reservation.getId(),
+                reservation.getDate(),
+                reservation.getStartTime(),
+                reservation.getEndTime(),
+                reservation.getPeopleCount(),
+                reservation.getTable().getNumber(),
+                reservation.getOrderer().getEmail()
+        );
+    }
+
 }
