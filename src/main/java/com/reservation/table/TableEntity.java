@@ -27,10 +27,4 @@ public class TableEntity {
     @ManyToOne
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
-
-
-
-
-
-    // Getters and setters
 }

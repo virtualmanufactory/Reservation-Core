@@ -3,13 +3,18 @@ package com.reservation.place;
 import com.reservation.calendar.CalendarDay;
 import com.reservation.table.TableEntity;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "places")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Place {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -27,10 +32,9 @@ public class Place {
     @Column(name = "post_office")
     private String postOffice;
 
-    @OneToMany(mappedBy = "places")
-    private Set<TableEntity> tables;
+    @OneToMany(mappedBy = "place")
+    private Set<TableEntity> tables = new HashSet<>();
 
-    @OneToMany(mappedBy = "places", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CalendarDay> days = new HashSet<>();
-
 }

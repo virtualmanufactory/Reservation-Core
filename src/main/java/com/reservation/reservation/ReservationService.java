@@ -1,5 +1,7 @@
 package com.reservation.reservation;
 
+import com.reservation.confirmation.Confirmation;
+import com.reservation.confirmation.ConfirmationService;
 import com.reservation.dto.CreateReservationFormDTO;
 import com.reservation.dto.ReservationResponseDTO;
 import com.reservation.email.EmailService;
@@ -19,14 +21,18 @@ public class ReservationService {
     private final OrdererRepository ordererRepository;
     private final TableRepository tableRepository;
     private final EmailService emailService;
+    private final ConfirmationService confirmationService;
     public ReservationService(ReservationRepository reservationRepository,
                               OrdererRepository ordererRepository,
-                              TableRepository tableRepository,EmailService emailService
+                              TableRepository tableRepository,
+                              EmailService emailService,
+                              ConfirmationService confirmationService
                               ) {
         this.reservationRepository = reservationRepository;
         this.ordererRepository = ordererRepository;
         this.tableRepository = tableRepository;
         this.emailService = emailService;
+        this.confirmationService = confirmationService;
     }
 
     @Transactional
@@ -61,8 +67,8 @@ public class ReservationService {
         reservation.setPeopleCount(dto.peopleCount());
 
         Reservation savedReservation = reservationRepository.save(reservation);
-
-        emailService.sendReservationConfirmation(savedReservation);
+        Confirmation confirmation = confirmationService.getOrCreateForReservation(savedReservation);
+        emailService.sendReservationConfirmation(savedReservation, confirmation);
 
         return mapToResponseDTO(savedReservation);
     }
