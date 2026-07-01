@@ -32,9 +32,22 @@ public class Place {
     @Column(name = "post_office")
     private String postOffice;
 
-    @OneToMany(mappedBy = "place")
+    private boolean initialized;
+
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TableEntity> tables = new HashSet<>();
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CalendarDay> days = new HashSet<>();
+
+
+    public void addTable(TableEntity table) {
+        tables.add(table);
+        table.setPlace(this);
+    }
+
+    public void addDay(CalendarDay day) {
+        days.add(day);
+        day.setPlace(this);
+    }
 }

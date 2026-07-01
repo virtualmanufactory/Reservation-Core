@@ -21,7 +21,7 @@ public class CalendarDay {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private LocalDate date;
 
     @Column(nullable = false)
@@ -30,6 +30,5 @@ public class CalendarDay {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Place place;
-
 
 }

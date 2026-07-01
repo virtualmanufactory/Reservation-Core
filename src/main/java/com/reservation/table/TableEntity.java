@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 @Table(name = "tables")
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class TableEntity {
     @Id
@@ -23,7 +25,7 @@ public class TableEntity {
 
     @Column
     private Integer number;
-
+    private boolean active;
     @ManyToOne
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
