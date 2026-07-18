@@ -7,7 +7,7 @@
 .DS_Store
 
 # Lokalny Podman / dane PostgreSQL (nie commituj sekretów ani volume)
-podman-compose.yml
+podman/reservation-core-compose.yaml
 postgres-data/
 .env
 .env.local

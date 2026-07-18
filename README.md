@@ -43,8 +43,8 @@ Konfiguracja: `app.cleanup.*`
 Lokalny plik `podman-compose.yml` jest w `.gitignore` (wraz z `postgres-data/`).
 
 ```bash
-cp podman-compose.yml.example podman-compose.yml
-podman compose -f podman-compose.yml up -d
+cp reservation-core-compose.yaml reservation-core-compose.yaml
+podman compose -f reservation-core-compose.yaml up -d
 ```
 
 Domyślne dane połączenia (zgodne z `application.properties`):
