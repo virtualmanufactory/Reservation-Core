@@ -7,7 +7,7 @@ System rezerwacji stolików dla restauracji (Spring Boot 4 / Java 21).
 | Element | Opis |
 |--------|------|
 | Serwer aplikacyjny | Spring Boot WAR (`ReservationSystemApplication`), scheduling włączony |
-| Baza danych | H2 in-memory (domyślnie) lub PostgreSQL (`--spring.profiles.active=postgres`) |
+| Baza danych | **PostgreSQL** (domyślnie) — uruchamiana przez Podman |
 | Schedule | Encja `ScheduleSlot`: data, godzina, dostępne / zarezerwowane stoliki |
 | Analityka | Osobna tabela `reservation_analytics` (dzień, godzina, liczba zarezerwowanych stolików) |
 | SMTP | `EmailService` + `spring-boot-starter-mail` (Gmail STARTTLS) |
@@ -38,6 +38,21 @@ Konfiguracja: `app.cleanup.*`
 - **Cancellation** — rekord odwołania
 - **ReservationAnalytics** — osobna tabela analityki
 
+## Baza PostgreSQL (Podman)
+
+Lokalny plik `podman-compose.yml` jest w `.gitignore` (wraz z `postgres-data/`).
+
+```bash
+cp podman-compose.yml.example podman-compose.yml
+podman compose -f podman-compose.yml up -d
+```
+
+Domyślne dane połączenia (zgodne z `application.properties`):
+
+- DB: `reservation`
+- user/hasło: `reservation` / `reservation`
+- port: `5432`
+
 ## Uruchomienie
 
 ```bash
@@ -46,12 +61,12 @@ mvn spring-boot:run
 
 - Panel: http://localhost:8080/restaurant/
 - Booking: http://localhost:8080/booking/
-- H2 console: http://localhost:8080/h2-console (JDBC: `jdbc:h2:mem:reservation`)
 
-PostgreSQL:
+## Testy
 
 ```bash
-mvn spring-boot:run -Dspring-boot.run.profiles=postgres
+# unit + integracyjne (profil test = H2 w trybie PostgreSQL)
+mvn test
 ```
 
 ## Szybki flow API
