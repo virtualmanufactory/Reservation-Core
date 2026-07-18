@@ -5,18 +5,22 @@ import com.reservation.table.TableEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = {"tables", "days"})
 public class Place {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     private String name;
@@ -36,15 +40,15 @@ public class Place {
 
     @Builder.Default
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TableEntity> tables = new HashSet<>();
+    private List<TableEntity> tables = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CalendarDay> days = new HashSet<>();
+    private List<CalendarDay> days = new ArrayList<>();
 
     public void addTable(TableEntity table) {
         if (tables == null) {
-            tables = new HashSet<>();
+            tables = new ArrayList<>();
         }
         tables.add(table);
         table.setPlace(this);
@@ -52,7 +56,7 @@ public class Place {
 
     public void addDay(CalendarDay day) {
         if (days == null) {
-            days = new HashSet<>();
+            days = new ArrayList<>();
         }
         days.add(day);
         day.setPlace(this);

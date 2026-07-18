@@ -3,10 +3,7 @@ package com.reservation.reservation;
 import com.reservation.orderer.Orderer;
 import com.reservation.table.TableEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -14,13 +11,17 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "reservations")
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = {"orderer", "table"})
 public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @ManyToOne

@@ -2,10 +2,7 @@ package com.reservation.schedule;
 
 import com.reservation.place.Place;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -16,14 +13,18 @@ import java.time.LocalTime;
 @Entity
 @Table(name = "schedule_slots",
         uniqueConstraints = @UniqueConstraint(columnNames = {"place_id", "slot_date", "slot_hour"}))
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = "place")
 public class ScheduleSlot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
