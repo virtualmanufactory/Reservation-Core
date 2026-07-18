@@ -40,22 +40,26 @@ Konfiguracja: `app.cleanup.*`
 
 ## Baza PostgreSQL (Podman)
 
-Lokalny plik `podman-compose.yml` jest w `.gitignore` (wraz z `postgres-data/`).
+Lokalny plik `podman/reservation-core-compose.yaml` jest w `.gitignore` (wraz z `postgres-data/`).
 
 ```bash
-cp reservation-core-compose.yaml reservation-core-compose.yaml
-podman compose -f reservation-core-compose.yaml up -d
+cp podman/reservation-core-compose.yaml.example podman/reservation-core-compose.yaml
+podman compose -f podman/reservation-core-compose.yaml up -d
 ```
 
 Domyślne dane połączenia (zgodne z `application.properties`):
 
-- DB: `reservation`
-- user/hasło: `reservation` / `reservation`
+- DB: `reservation_core_db`
+- user/hasło: `postgres` / `root`
 - port: `5432`
+
+Bez działającej bazy Spring Boot **nie wystartuje** — wtedy `http://localhost:8080/restaurant/` nie otworzy się (connection refused).
 
 ## Uruchomienie
 
 ```bash
+# 1) Postgres (powyżej)
+# 2) Aplikacja
 mvn spring-boot:run
 ```
 
