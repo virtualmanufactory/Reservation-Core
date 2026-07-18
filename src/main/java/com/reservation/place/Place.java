@@ -34,19 +34,26 @@ public class Place {
 
     private boolean initialized;
 
+    @Builder.Default
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TableEntity> tables = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CalendarDay> days = new HashSet<>();
 
-
     public void addTable(TableEntity table) {
+        if (tables == null) {
+            tables = new HashSet<>();
+        }
         tables.add(table);
         table.setPlace(this);
     }
 
     public void addDay(CalendarDay day) {
+        if (days == null) {
+            days = new HashSet<>();
+        }
         days.add(day);
         day.setPlace(this);
     }

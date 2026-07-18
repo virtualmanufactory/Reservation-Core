@@ -2,8 +2,17 @@ package com.reservation.user;
 
 import com.reservation.place.Place;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
 @Table(name = "users")
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +42,4 @@ public class User {
 
     @Column(name = "position_description")
     private String positionDescription;
-
-    // Getters and setters
 }

@@ -21,22 +21,17 @@ public class OpeningHours {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Assuming place_id references the restaurant or place entity
     @Column(name = "place_id", nullable = false)
     private Long placeId;
 
-    // Example: "Monday", "Tuesday"...
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Weekdays weekdays;
 
     private LocalTime openTime;
 
-
     private LocalTime closeTime;
 
     @Column(nullable = false)
     private boolean closed = false;
-
-
 }
-

@@ -28,7 +28,6 @@ public class CalendarDay {
     private boolean isLocked;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "restaurant_id", nullable = false)
+    @JoinColumn(name = "place_id", nullable = false)
     private Place place;
-
 }

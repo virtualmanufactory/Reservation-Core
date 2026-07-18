@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reservation Core — panel restauracji</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand-block">
+      <p class="brand">Reservation Core</p>
+      <p class="brand-sub">Panel restauracji</p>
+    </div>
+    <nav class="tabs" aria-label="Sekcje">
+      <button type="button" class="tab is-active" data-tab="schedule">Harmonogram</button>
+      <button type="button" class="tab" data-tab="analytics">Analityka</button>
+      <button type="button" class="tab" data-tab="cancel">Odwołania</button>
+      <button type="button" class="tab" data-tab="setup">Lokal</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="controls">
+      <label>
+        Lokal
+        <select id="placeSelect"></select>
+      </label>
+      <label>
+        Dzień
+        <input type="date" id="dateInput" />
+      </label>
+      <button type="button" id="refreshBtn" class="btn">Odśwież</button>
+      <a class="btn btn-ghost" href="/booking/">Formularz gościa</a>
+    </section>
+
+    <section id="panel-schedule" class="panel is-visible">
+      <div class="section-head">
+        <h1>Harmonogram dnia</h1>
+        <p>Godzina, dostępne stoliki i liczba zarezerwowanych miejsc.</p>
+      </div>
+      <div id="scheduleTable" class="data-table" role="table"></div>
+    </section>
+
+    <section id="panel-analytics" class="panel">
+      <div class="section-head">
+        <h1>Analityka</h1>
+        <p>Osobna tabela: dzień, godzina, zarezerwowane stoliki.</p>
+      </div>
+      <div id="analyticsTable" class="data-table" role="table"></div>
+    </section>
+
+    <section id="panel-cancel" class="panel">
+      <div class="section-head">
+        <h1>Odwołanie rezerwacji</h1>
+        <p>Po odwołaniu dostępność stolika wraca do harmonogramu.</p>
+      </div>
+      <form id="cancelForm" class="form-grid">
+        <label>
+          Numer rezerwacji
+          <input name="reservationNumber" id="cancelNumber" required placeholder="RES-20260718-A3F9B2" />
+        </label>
+        <label>
+          Powód (opcjonalnie)
+          <input name="reason" placeholder="Prośba gościa" />
+        </label>
+        <label>
+          Język maila
+          <select name="locale">
+            <option value="pl">Polski</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+        <button type="submit" class="btn btn-danger">Odwołaj</button>
+      </form>
+      <p id="cancelResult" class="result" aria-live="polite"></p>
+      <div class="section-head tight">
+        <h2>Aktywne rezerwacje</h2>
+      </div>
+      <div id="reservationsTable" class="data-table"></div>
+    </section>
+
+    <section id="panel-setup" class="panel">
+      <div class="section-head">
+        <h1>Lokal i konfiguracja</h1>
+        <p>Utwórz lokal, potem wygeneruj kalendarz i schedule stolików.</p>
+      </div>
+      <form id="placeForm" class="form-grid">
+        <label>Nazwa <input name="name" required value="Trattoria Nova" /></label>
+        <label>Miasto <input name="city" required value="Warszawa" /></label>
+        <label>Ulica <input name="street" required value="Marszałkowska" /></label>
+        <label>Numer <input name="streetNumber" type="number" required value="12" /></label>
+        <label>Kod pocztowy <input name="postalCode" required value="00-001" /></label>
+        <label>Poczta <input name="postOffice" required value="Warszawa" /></label>
+        <button type="submit" class="btn">Utwórz lokal</button>
+      </form>
+      <form id="setupForm" class="form-grid">
+        <label>Rok <input name="year" type="number" required value="2026" /></label>
+        <label>Otwarcie <input name="defaultOpenFrom" type="time" value="12:00" /></label>
+        <label>Zamknięcie <input name="defaultOpenTo" type="time" value="22:00" /></label>
+        <label>Liczba stolików <input name="tableCount" type="number" min="1" value="8" /></label>
+        <label>Miejsc / stolik <input name="seats" type="number" min="1" value="4" /></label>
+        <button type="submit" class="btn">Inicjalizuj schedule</button>
+      </form>
+      <p id="setupResult" class="result" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

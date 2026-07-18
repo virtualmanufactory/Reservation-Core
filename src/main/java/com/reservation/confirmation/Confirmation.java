@@ -22,7 +22,8 @@ public class Confirmation {
     @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
 
-    @Column(name = "confirmation_code")
+    /** Numer rezerwacji widoczny dla klienta, np. RES-20260718-A3F9B2 */
+    @Column(name = "confirmation_code", nullable = false, unique = true)
     private String confirmationCode;
 
     @Column(nullable = false)
@@ -30,6 +31,4 @@ public class Confirmation {
 
     @Column(nullable = false)
     private Boolean cancelled;
-
-    // Getters and setters
 }

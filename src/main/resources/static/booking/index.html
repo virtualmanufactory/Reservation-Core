@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reservation Core — rezerwacja</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../restaurant/styles.css" />
+  <style>
+    .hero {
+      min-height: 72vh;
+      display: grid;
+      align-content: end;
+      padding: clamp(1.5rem, 5vw, 4rem);
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(12, 28, 24, 0.15), rgba(12, 28, 24, 0.72)),
+        url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1800&q=80") center/cover no-repeat;
+      color: #f7f3ea;
+    }
+    .hero .brand { color: #f7f3ea; font-size: clamp(2.8rem, 8vw, 5.5rem); }
+    .hero p { max-width: 28rem; color: rgba(247, 243, 234, 0.88); font-size: 1.1rem; }
+    .hero-cta { margin-top: 1.25rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .book-panel { margin: -3rem clamp(1rem, 4vw, 3rem) 3rem; position: relative; }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <p class="brand">Reservation Core</p>
+    <p>Zarezerwuj stolik na wybrany dzień i godzinę. Potwierdzenie z numerem wyślemy mailem — po polsku lub po angielsku.</p>
+    <div class="hero-cta">
+      <a class="btn" href="#form">Rezerwuję stolik</a>
+      <a class="btn btn-ghost" href="/restaurant/" style="color:#f7f3ea;border-color:rgba(247,243,234,.4)">Panel restauracji</a>
+    </div>
+  </section>
+
+  <section class="book-panel" id="form">
+    <div class="section-head">
+      <h1>Formularz rezerwacji</h1>
+      <p>Wymagane pola są walidowane po stronie API.</p>
+    </div>
+    <form id="bookForm" class="form-grid">
+      <label>Lokal
+        <select name="placeId" id="placeSelect" required></select>
+      </label>
+      <label>Imię <input name="ordererName" required /></label>
+      <label>Nazwisko <input name="ordererSurname" required /></label>
+      <label>Email <input name="email" type="email" required /></label>
+      <label>Telefon <input name="phoneNumber" required /></label>
+      <label>Data <input name="date" type="date" required /></label>
+      <label>Godzina <input name="startTime" type="time" required value="18:00" /></label>
+      <label>Czas (min) <input name="durationMinutes" type="number" min="30" max="480" value="90" required /></label>
+      <label>Osoby <input name="peopleCount" type="number" min="1" max="50" value="2" required /></label>
+      <label>Język potwierdzenia
+        <select name="locale">
+          <option value="pl">Polski</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+      <button type="submit" class="btn">Wyślij rezerwację</button>
+    </form>
+    <p id="result" class="result" aria-live="polite"></p>
+  </section>
+
+  <script>
+    const result = document.getElementById("result");
+    const placeSelect = document.getElementById("placeSelect");
+    document.querySelector('[name="date"]').value = new Date().toISOString().slice(0, 10);
+
+    fetch("/api/places").then(r => r.json()).then(places => {
+      placeSelect.innerHTML = places.map(p =>
+        `<option value="${p.id}">${p.name} — ${p.city}</option>`).join("") ||
+        `<option value="">Brak lokali</option>`;
+    });
+
+    document.getElementById("bookForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const payload = {
+        placeId: Number(fd.get("placeId")),
+        ordererName: fd.get("ordererName"),
+        ordererSurname: fd.get("ordererSurname"),
+        email: fd.get("email"),
+        phoneNumber: fd.get("phoneNumber"),
+        date: fd.get("date"),
+        startTime: fd.get("startTime").length === 5 ? fd.get("startTime") + ":00" : fd.get("startTime"),
+        durationMinutes: Number(fd.get("durationMinutes")),
+        peopleCount: Number(fd.get("peopleCount")),
+        locale: fd.get("locale"),
+      };
+      try {
+        const res = await fetch("/api/reservations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          const msg = data.message || (data.errors && JSON.stringify(data.errors)) || "Błąd";
+          throw new Error(msg);
+        }
+        result.textContent = `Rezerwacja przyjęta. Numer: ${data.reservationNumber}`;
+        e.target.reset();
+      } catch (err) {
+        result.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

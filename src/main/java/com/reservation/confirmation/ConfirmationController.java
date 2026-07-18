@@ -1,5 +1,6 @@
 package com.reservation.confirmation;
 
+import com.reservation.dto.MessageResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,8 +17,8 @@ public class ConfirmationController {
     }
 
     @GetMapping("/confirm")
-    public ResponseEntity<String> confirm(@RequestParam String code) {
-        confirmationService.confirm(code);
-        return ResponseEntity.ok("Rezerwacja została potwierdzona.");
+    public ResponseEntity<MessageResponseDTO> confirm(@RequestParam String code) {
+        String message = confirmationService.confirm(code);
+        return ResponseEntity.ok(new MessageResponseDTO(message));
     }
 }

@@ -1,13 +1,14 @@
 package com.reservation.calendar;
 
-import com.reservation.orderer.Orderer;
-import org.springframework.data.repository.CrudRepository;
+import com.reservation.place.Place;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-public interface CalendarDayRepository  extends CrudRepository<CalendarDay, Long> {
-    //TODO Znaleźć dostępną datę
-    <Orderer> Optional findByPlaceAndDay(LocalDate date);
+public interface CalendarDayRepository extends JpaRepository<CalendarDay, Integer> {
 
+    Optional<CalendarDay> findByPlaceAndDate(Place place, LocalDate date);
+
+    Optional<CalendarDay> findByPlaceIdAndDate(Integer placeId, LocalDate date);
 }
