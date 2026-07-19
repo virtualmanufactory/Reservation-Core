@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reservation Core — rezerwacja</title>
+  <title data-i18n-title="doc.booking.title">Reservation Core — rezerwacja</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet" />
@@ -29,51 +29,59 @@
 </head>
 <body>
   <section class="hero">
+    <div class="lang-switch" data-variant="hero" role="group" aria-label="Language">
+      <button type="button" class="lang-btn" data-lang="pl" aria-pressed="true">PL</button>
+      <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+    </div>
     <p class="brand">Reservation Core</p>
-    <p>Zarezerwuj stolik na wybrany dzień i godzinę. Potwierdzenie z numerem wyślemy mailem — po polsku lub po angielsku.</p>
+    <p data-i18n="booking.hero.lead">Zarezerwuj stolik na wybrany dzień i godzinę. Potwierdzenie z numerem wyślemy mailem — po polsku lub po angielsku.</p>
     <div class="hero-cta">
-      <a class="btn" href="#form">Rezerwuję stolik</a>
-      <a class="btn btn-ghost" href="/restaurant/" style="color:#f7f3ea;border-color:rgba(247,243,234,.4)">Panel restauracji</a>
+      <a class="btn" href="#form" data-i18n="booking.cta.book">Rezerwuję stolik</a>
+      <a class="btn btn-ghost" href="/restaurant/" style="color:#f7f3ea;border-color:rgba(247,243,234,.4)" data-i18n="booking.cta.panel">Panel restauracji</a>
     </div>
   </section>
 
   <section class="book-panel" id="form">
     <div class="section-head">
-      <h1>Formularz rezerwacji</h1>
-      <p>Wymagane pola są walidowane po stronie API.</p>
+      <h1 data-i18n="booking.form.title">Formularz rezerwacji</h1>
+      <p data-i18n="booking.form.lead">Wymagane pola są walidowane po stronie API.</p>
     </div>
     <form id="bookForm" class="form-grid">
-      <label>Lokal
+      <label><span data-i18n="booking.label.place">Lokal</span>
         <select name="placeId" id="placeSelect" required></select>
       </label>
-      <label>Imię <input name="ordererName" required /></label>
-      <label>Nazwisko <input name="ordererSurname" required /></label>
-      <label>Email <input name="email" type="email" required /></label>
-      <label>Telefon <input name="phoneNumber" required /></label>
-      <label>Data <input name="date" type="date" required /></label>
-      <label>Godzina <input name="startTime" type="time" required value="18:00" /></label>
-      <label>Czas (min) <input name="durationMinutes" type="number" min="30" max="480" value="90" required /></label>
-      <label>Osoby <input name="peopleCount" type="number" min="1" max="50" value="2" required /></label>
-      <label>Język potwierdzenia
-        <select name="locale">
-          <option value="pl">Polski</option>
-          <option value="en">English</option>
-        </select>
-      </label>
-      <button type="submit" class="btn">Wyślij rezerwację</button>
+      <label><span data-i18n="booking.label.name">Imię</span> <input name="ordererName" required /></label>
+      <label><span data-i18n="booking.label.surname">Nazwisko</span> <input name="ordererSurname" required /></label>
+      <label><span data-i18n="booking.label.email">Email</span> <input name="email" type="email" required /></label>
+      <label><span data-i18n="booking.label.phone">Telefon</span> <input name="phoneNumber" required /></label>
+      <label><span data-i18n="booking.label.date">Data</span> <input name="date" type="date" required /></label>
+      <label><span data-i18n="booking.label.time">Godzina</span> <input name="startTime" type="time" required value="18:00" /></label>
+      <label><span data-i18n="booking.label.duration">Czas (min)</span> <input name="durationMinutes" type="number" min="30" max="480" value="90" required /></label>
+      <label><span data-i18n="booking.label.people">Osoby</span> <input name="peopleCount" type="number" min="1" max="50" value="2" required /></label>
+      <input type="hidden" name="locale" id="localeField" value="pl" />
+      <button type="submit" class="btn" data-i18n="booking.submit">Wyślij rezerwację</button>
     </form>
     <p id="result" class="result" aria-live="polite"></p>
   </section>
 
+  <script src="../i18n.js"></script>
   <script>
     const result = document.getElementById("result");
     const placeSelect = document.getElementById("placeSelect");
+    const localeField = document.getElementById("localeField");
     document.querySelector('[name="date"]').value = new Date().toISOString().slice(0, 10);
+
+    I18N.init("pl");
+    localeField.value = I18N.getLang();
+
+    document.addEventListener("rc:locale", () => {
+      localeField.value = I18N.getLang();
+    });
 
     fetch("/api/places").then(r => r.json()).then(places => {
       placeSelect.innerHTML = places.map(p =>
         `<option value="${p.id}">${p.name} — ${p.city}</option>`).join("") ||
-        `<option value="">Brak lokali</option>`;
+        `<option value="">${I18N.t("booking.places.empty")}</option>`;
     });
 
     document.getElementById("bookForm").addEventListener("submit", async (e) => {
@@ -89,7 +97,7 @@
         startTime: fd.get("startTime").length === 5 ? fd.get("startTime") + ":00" : fd.get("startTime"),
         durationMinutes: Number(fd.get("durationMinutes")),
         peopleCount: Number(fd.get("peopleCount")),
-        locale: fd.get("locale"),
+        locale: I18N.getLang(),
       };
       try {
         const res = await fetch("/api/reservations", {
@@ -99,11 +107,13 @@
         });
         const data = await res.json();
         if (!res.ok) {
-          const msg = data.message || (data.errors && JSON.stringify(data.errors)) || "Błąd";
+          const msg = data.message || (data.errors && JSON.stringify(data.errors)) || I18N.t("booking.error");
           throw new Error(msg);
         }
-        result.textContent = `Rezerwacja przyjęta. Numer: ${data.reservationNumber}`;
+        result.textContent = I18N.t("booking.success", data.reservationNumber);
         e.target.reset();
+        document.querySelector('[name="date"]').value = new Date().toISOString().slice(0, 10);
+        localeField.value = I18N.getLang();
       } catch (err) {
         result.textContent = err.message;
       }

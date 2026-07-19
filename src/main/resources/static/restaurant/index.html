@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reservation Core — panel restauracji</title>
+  <title data-i18n-title="doc.restaurant.title">Reservation Core — panel restauracji</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -15,102 +15,103 @@
   <header class="top">
     <div class="brand-block">
       <p class="brand">Reservation Core</p>
-      <p class="brand-sub">Panel restauracji</p>
+      <p class="brand-sub" data-i18n="brand.sub">Panel restauracji</p>
     </div>
-    <nav class="tabs" aria-label="Sekcje">
-      <button type="button" class="tab is-active" data-tab="schedule">Harmonogram</button>
-      <button type="button" class="tab" data-tab="analytics">Analityka</button>
-      <button type="button" class="tab" data-tab="cancel">Odwołania</button>
-      <button type="button" class="tab" data-tab="setup">Lokal</button>
-    </nav>
+    <div class="top-actions">
+      <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Język">
+        <button type="button" class="lang-btn" data-lang="pl" aria-pressed="true">PL</button>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <nav class="tabs" data-i18n-aria="nav.aria" aria-label="Sekcje">
+        <button type="button" class="tab is-active" data-tab="schedule" data-i18n="nav.schedule">Harmonogram</button>
+        <button type="button" class="tab" data-tab="analytics" data-i18n="nav.analytics">Analityka</button>
+        <button type="button" class="tab" data-tab="cancel" data-i18n="nav.cancel">Odwołania</button>
+        <button type="button" class="tab" data-tab="setup" data-i18n="nav.setup">Lokal</button>
+      </nav>
+    </div>
   </header>
 
   <main>
     <section class="controls">
       <label>
-        Lokal
+        <span data-i18n="controls.place">Lokal</span>
         <select id="placeSelect"></select>
       </label>
       <label>
-        Dzień
+        <span data-i18n="controls.day">Dzień</span>
         <input type="date" id="dateInput" />
       </label>
-      <button type="button" id="refreshBtn" class="btn">Odśwież</button>
-      <a class="btn btn-ghost" href="/booking/">Formularz gościa</a>
+      <button type="button" id="refreshBtn" class="btn" data-i18n="controls.refresh">Odśwież</button>
+      <a class="btn btn-ghost" href="/booking/" data-i18n="controls.guest">Formularz gościa</a>
     </section>
 
     <section id="panel-schedule" class="panel is-visible">
       <div class="section-head">
-        <h1>Harmonogram dnia</h1>
-        <p>Godzina, dostępne stoliki i liczba zarezerwowanych miejsc.</p>
+        <h1 data-i18n="schedule.title">Harmonogram dnia</h1>
+        <p data-i18n="schedule.lead">Godzina, dostępne stoliki i liczba zarezerwowanych miejsc.</p>
       </div>
       <div id="scheduleTable" class="data-table" role="table"></div>
     </section>
 
     <section id="panel-analytics" class="panel">
       <div class="section-head">
-        <h1>Analityka</h1>
-        <p>Osobna tabela: dzień, godzina, zarezerwowane stoliki.</p>
+        <h1 data-i18n="analytics.title">Analityka</h1>
+        <p data-i18n="analytics.lead">Osobna tabela: dzień, godzina, zarezerwowane stoliki.</p>
       </div>
       <div id="analyticsTable" class="data-table" role="table"></div>
     </section>
 
     <section id="panel-cancel" class="panel">
       <div class="section-head">
-        <h1>Odwołanie rezerwacji</h1>
-        <p>Po odwołaniu dostępność stolika wraca do harmonogramu.</p>
+        <h1 data-i18n="cancel.title">Odwołanie rezerwacji</h1>
+        <p data-i18n="cancel.lead">Po odwołaniu dostępność stolika wraca do harmonogramu.</p>
       </div>
       <form id="cancelForm" class="form-grid">
         <label>
-          Numer rezerwacji
+          <span data-i18n="cancel.label.number">Numer rezerwacji</span>
           <input name="reservationNumber" id="cancelNumber" required placeholder="RES-20260718-A3F9B2" />
         </label>
         <label>
-          Powód (opcjonalnie)
-          <input name="reason" placeholder="Prośba gościa" />
+          <span data-i18n="cancel.label.reason">Powód (opcjonalnie)</span>
+          <input name="reason" data-i18n-placeholder="cancel.placeholder.reason" placeholder="Prośba gościa" />
         </label>
-        <label>
-          Język maila
-          <select name="locale">
-            <option value="pl">Polski</option>
-            <option value="en">English</option>
-          </select>
-        </label>
-        <button type="submit" class="btn btn-danger">Odwołaj</button>
+        <input type="hidden" name="locale" id="localeField" value="pl" />
+        <button type="submit" class="btn btn-danger" data-i18n="cancel.submit">Odwołaj</button>
       </form>
       <p id="cancelResult" class="result" aria-live="polite"></p>
       <div class="section-head tight">
-        <h2>Aktywne rezerwacje</h2>
+        <h2 data-i18n="cancel.active">Aktywne rezerwacje</h2>
       </div>
       <div id="reservationsTable" class="data-table"></div>
     </section>
 
     <section id="panel-setup" class="panel">
       <div class="section-head">
-        <h1>Lokal i konfiguracja</h1>
-        <p>Utwórz lokal, potem wygeneruj kalendarz i schedule stolików.</p>
+        <h1 data-i18n="setup.title">Lokal i konfiguracja</h1>
+        <p data-i18n="setup.lead">Utwórz lokal, potem wygeneruj kalendarz i schedule stolików.</p>
       </div>
       <form id="placeForm" class="form-grid">
-        <label>Nazwa <input name="name" required value="Trattoria Nova" /></label>
-        <label>Miasto <input name="city" required value="Warszawa" /></label>
-        <label>Ulica <input name="street" required value="Marszałkowska" /></label>
-        <label>Numer <input name="streetNumber" type="number" required value="12" /></label>
-        <label>Kod pocztowy <input name="postalCode" required value="00-001" /></label>
-        <label>Poczta <input name="postOffice" required value="Warszawa" /></label>
-        <button type="submit" class="btn">Utwórz lokal</button>
+        <label><span data-i18n="setup.label.name">Nazwa</span> <input name="name" required value="Trattoria Nova" /></label>
+        <label><span data-i18n="setup.label.city">Miasto</span> <input name="city" required value="Warszawa" /></label>
+        <label><span data-i18n="setup.label.street">Ulica</span> <input name="street" required value="Marszałkowska" /></label>
+        <label><span data-i18n="setup.label.number">Numer</span> <input name="streetNumber" type="number" required value="12" /></label>
+        <label><span data-i18n="setup.label.postal">Kod pocztowy</span> <input name="postalCode" required value="00-001" /></label>
+        <label><span data-i18n="setup.label.post">Poczta</span> <input name="postOffice" required value="Warszawa" /></label>
+        <button type="submit" class="btn" data-i18n="setup.create">Utwórz lokal</button>
       </form>
       <form id="setupForm" class="form-grid">
-        <label>Rok <input name="year" type="number" required value="2026" /></label>
-        <label>Otwarcie <input name="defaultOpenFrom" type="time" value="12:00" /></label>
-        <label>Zamknięcie <input name="defaultOpenTo" type="time" value="22:00" /></label>
-        <label>Liczba stolików <input name="tableCount" type="number" min="1" value="8" /></label>
-        <label>Miejsc / stolik <input name="seats" type="number" min="1" value="4" /></label>
-        <button type="submit" class="btn">Inicjalizuj schedule</button>
+        <label><span data-i18n="setup.label.year">Rok</span> <input name="year" type="number" required value="2026" /></label>
+        <label><span data-i18n="setup.label.open">Otwarcie</span> <input name="defaultOpenFrom" type="time" value="12:00" /></label>
+        <label><span data-i18n="setup.label.close">Zamknięcie</span> <input name="defaultOpenTo" type="time" value="22:00" /></label>
+        <label><span data-i18n="setup.label.tables">Liczba stolików</span> <input name="tableCount" type="number" min="1" value="8" /></label>
+        <label><span data-i18n="setup.label.seats">Miejsc / stolik</span> <input name="seats" type="number" min="1" value="4" /></label>
+        <button type="submit" class="btn" data-i18n="setup.init">Inicjalizuj schedule</button>
       </form>
       <p id="setupResult" class="result" aria-live="polite"></p>
     </section>
   </main>
 
+  <script src="../i18n.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@ const api = {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const msg = data.message || data.error || `Błąd ${res.status}`;
+      const msg = data.message || data.error || I18N.t("api.error", res.status);
       throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
     }
     return data;
@@ -26,17 +26,22 @@ const els = {
   placeForm: document.getElementById("placeForm"),
   setupForm: document.getElementById("setupForm"),
   setupResult: document.getElementById("setupResult"),
+  localeField: document.getElementById("localeField"),
 };
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function t(key, ...args) {
+  return I18N.t(key, ...args);
+}
+
 function renderRows(container, headers, rows) {
   const head = `<div class="row head" role="row">${headers.map((h) => `<div>${h}</div>`).join("")}</div>`;
   const body = rows.length
     ? rows.map((cells) => `<div class="row" role="row">${cells.map((c) => `<div>${c}</div>`).join("")}</div>`).join("")
-    : `<div class="row"><div>Brak danych dla wybranego dnia.</div></div>`;
+    : `<div class="row"><div>${t("table.empty")}</div></div>`;
   container.innerHTML = head + body;
 }
 
@@ -46,7 +51,7 @@ async function loadPlaces() {
     .map((p) => `<option value="${p.id}">#${p.id} — ${p.name} (${p.city})</option>`)
     .join("");
   if (!places.length) {
-    els.placeSelect.innerHTML = `<option value="">Brak lokali — utwórz w zakładce Lokal</option>`;
+    els.placeSelect.innerHTML = `<option value="">${t("places.empty")}</option>`;
   }
 }
 
@@ -57,15 +62,15 @@ async function loadSchedule() {
   const slots = await api.json(`/api/places/${placeId}/schedule?date=${date}`);
   renderRows(
     els.scheduleTable,
-    ["Godzina", "Dostępne", "Zarezerwowane", "Razem", "Sterowanie"],
+    [t("schedule.h.hour"), t("schedule.h.available"), t("schedule.h.reserved"), t("schedule.h.total"), t("schedule.h.controls")],
     slots.map((s) => [
       s.hour,
       s.availableTables,
       `<strong>${s.reservedTables}</strong>`,
       s.totalTables,
       s.locked
-        ? `<button class="btn btn-ghost" data-unlock="${s.hour}">Odblokuj</button> <span class="badge badge-lock">zablokowany</span>`
-        : `<button class="btn btn-ghost" data-lock="${s.hour}">Zablokuj</button> <span class="badge badge-ok">otwarty</span>`,
+        ? `<button class="btn btn-ghost" data-unlock="${s.hour}">${t("schedule.unlock")}</button> <span class="badge badge-lock">${t("schedule.locked")}</span>`
+        : `<button class="btn btn-ghost" data-lock="${s.hour}">${t("schedule.lock")}</button> <span class="badge badge-ok">${t("schedule.open")}</span>`,
     ])
   );
 
@@ -94,7 +99,7 @@ async function loadAnalytics() {
   const rows = await api.json(`/api/places/${placeId}/analytics?date=${date}`);
   renderRows(
     els.analyticsTable,
-    ["Dzień", "Godzina", "Zarezerwowane stoliki", "Odwołane", "Osoby"],
+    [t("analytics.h.day"), t("analytics.h.hour"), t("analytics.h.reserved"), t("analytics.h.cancelled"), t("analytics.h.people")],
     rows.map((r) => [r.date, r.hour, `<strong>${r.reservedTables}</strong>`, r.cancelledTables, r.peopleCount])
   );
 }
@@ -105,13 +110,13 @@ async function loadReservations() {
   const rows = await api.json(`/api/reservations?placeId=${placeId}`);
   renderRows(
     els.reservationsTable,
-    ["Numer", "Dzień", "Godzina", "Osoby", "Stolik / status"],
+    [t("cancel.h.number"), t("cancel.h.day"), t("cancel.h.time"), t("cancel.h.people"), t("cancel.h.table")],
     rows.map((r) => [
       r.reservationNumber,
       r.date,
       r.startTime,
       r.peopleCount,
-      `#${r.tableNumber} · ${r.status}${r.confirmed ? " · potwierdzona" : ""}`,
+      `#${r.tableNumber} · ${r.status}${r.confirmed ? " · " + t("cancel.confirmed") : ""}`,
     ])
   );
 }
@@ -122,7 +127,7 @@ async function refreshAll() {
 
 document.querySelectorAll(".tab").forEach((tab) => {
   tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("is-active"));
+    document.querySelectorAll(".tab").forEach((tEl) => tEl.classList.remove("is-active"));
     document.querySelectorAll(".panel").forEach((p) => p.classList.remove("is-visible"));
     tab.classList.add("is-active");
     document.getElementById(`panel-${tab.dataset.tab}`).classList.add("is-visible");
@@ -142,7 +147,7 @@ els.cancelForm.addEventListener("submit", async (e) => {
       body: JSON.stringify({
         reservationNumber: fd.get("reservationNumber"),
         reason: fd.get("reason") || null,
-        locale: fd.get("locale"),
+        locale: I18N.getLang(),
       }),
     });
     els.cancelResult.textContent = data.message;
@@ -167,7 +172,7 @@ els.placeForm.addEventListener("submit", async (e) => {
         postOffice: fd.get("postOffice"),
       }),
     });
-    els.setupResult.textContent = `Utworzono lokal #${place.id} — ${place.name}`;
+    els.setupResult.textContent = t("setup.created", place.id, place.name);
     await loadPlaces();
     els.placeSelect.value = String(place.id);
   } catch (err) {
@@ -179,7 +184,7 @@ els.setupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const placeId = els.placeSelect.value;
   if (!placeId) {
-    els.setupResult.textContent = "Najpierw utwórz lokal.";
+    els.setupResult.textContent = t("setup.needPlace");
     return;
   }
   const fd = new FormData(els.setupForm);
@@ -201,14 +206,22 @@ els.setupForm.addEventListener("submit", async (e) => {
         tables,
       }),
     });
-    els.setupResult.textContent = `Zainicjalizowano: ${place.tablesCount} stolików, ${place.daysCount} dni + schedule.`;
+    els.setupResult.textContent = t("setup.inited", place.tablesCount, place.daysCount);
     await refreshAll();
   } catch (err) {
     els.setupResult.textContent = err.message;
   }
 });
 
+document.addEventListener("rc:locale", () => {
+  if (els.localeField) els.localeField.value = I18N.getLang();
+  refreshAll().catch(console.error);
+});
+
 (async function init() {
+  I18N.init("pl");
+  if (els.localeField) els.localeField.value = I18N.getLang();
+
   els.dateInput.value = todayIso();
   const params = new URLSearchParams(location.search);
   if (params.get("cancel")) {
