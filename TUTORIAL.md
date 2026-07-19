@@ -10,7 +10,7 @@ System rezerwacji stolików dla restauracji (Spring Boot 4 / Java 21).
 | Baza danych | **PostgreSQL** (domyślnie) — uruchamiana przez Podman |
 | Schedule | Encja `ScheduleSlot`: data, godzina, dostępne / zarezerwowane stoliki |
 | Analityka | Osobna tabela `reservation_analytics` (dzień, godzina, liczba zarezerwowanych stolików) |
-| SMTP | `EmailService` + `spring-boot-starter-mail` (Gmail STARTTLS) |
+| SMTP | `EmailService` + `spring-boot-starter-mail` — lokalnie **MailHog**, opcjonalnie Gmail (`profile=gmail`) |
 | Generator potwierdzeń | Numer `RES-YYYYMMDD-XXXXXX` + mail w wybranym języku |
 | API | REST pod `/api/**` |
 | Walidator | Bean Validation na formularzu (`@NotBlank`, `@Email`, `@NotNull`, …) |
@@ -38,7 +38,7 @@ Konfiguracja: `app.cleanup.*`
 - **Cancellation** — rekord odwołania
 - **ReservationAnalytics** — osobna tabela analityki
 
-## Baza PostgreSQL (Podman)
+## PostgreSQL + MailHog (Podman)
 
 Lokalny plik `podman/reservation-core-compose.yaml` jest w `.gitignore` (wraz z `postgres-data/`).
 
@@ -47,18 +47,23 @@ cp podman/reservation-core-compose.yaml.example podman/reservation-core-compose.
 podman compose -f podman/reservation-core-compose.yaml up -d
 ```
 
+Uruchamia:
+- **PostgreSQL** — `localhost:5432`
+- **MailHog** — SMTP `localhost:1025`, UI http://localhost:8025
+
 Bez działającej bazy Spring Boot **nie wystartuje** — wtedy `http://localhost:8080/restaurant/` nie otworzy się (connection refused).
 
 ## Uruchomienie
 
 ```bash
-# 1) Postgres (powyżej)
-# 2) Aplikacja
+# 1) Postgres + MailHog (powyżej)
+# 2) Aplikacja (domyślnie wysyła maile do MailHog)
 mvn spring-boot:run
 ```
 
 - Panel: http://localhost:8080/restaurant/
 - Booking: http://localhost:8080/booking/
+- Maile: http://localhost:8025
 
 ## Testy
 
@@ -97,13 +102,23 @@ curl -s -X POST http://localhost:8080/api/reservations/cancel \
   -d '{"reservationNumber":"RES-20260720-XXXXXX","reason":"Zmiana planów","locale":"pl"}'
 ```
 
-## SMTP
+## SMTP / MailHog
 
-Uzupełnij w `application.properties`:
+Domyślnie aplikacja wysyła maile na lokalny MailHog (`localhost:1025`). Po utworzeniu rezerwacji lub odwołaniu otwórz UI: http://localhost:8025
 
+Szybki test:
+
+```bash
+curl -s -X POST http://localhost:8080/api/email/test \
+  -H 'Content-Type: application/json' \
+  -d '{"to":"test@example.com","subject":"Ping","body":"MailHog działa"}'
 ```
-spring.mail.username=...
-spring.mail.password=...   # hasło aplikacji Gmail
+
+### Gmail (opcjonalnie)
+
+```bash
+# uzupełnij username/password w application-gmail.properties
+mvn spring-boot:run -Dspring-boot.run.profiles=gmail
 ```
 
 Przy błędnej konfiguracji SMTP rezerwacja i tak jest zapisywana (mail logowany jako warning).
