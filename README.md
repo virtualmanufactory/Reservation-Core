@@ -1,8 +1,6 @@
 # Reservation-Core
-<img width="1902" height="365" alt="image" src="https://github.com/user-attachments/assets/7366ee7e-1bbf-432d-8cae-a8f903eb1738" />
+<img width="1919" height="833" alt="image" src="https://github.com/user-attachments/assets/04b91a67-c71a-4e8f-90e4-6a9b5f9dffd6" />
 
-<img width="1889" height="858" alt="image" src="https://github.com/user-attachments/assets/59d4feee-bc8f-42a5-a532-dd450760f93e" />
-
-<img width="1896" height="636" alt="image" src="https://github.com/user-attachments/assets/c2d31336-a0dc-422f-a202-cb3d5dec53a1" />
-
-<img width="1875" height="748" alt="image" src="https://github.com/user-attachments/assets/b038a13b-a556-4f65-a7fc-3e648b68590a" />
+<img width="1893" height="669" alt="image" src="https://github.com/user-attachments/assets/9f4d1b75-130d-4d0b-9e95-08fed205a8b8" />
+<img width="1865" height="802" alt="image" src="https://github.com/user-attachments/assets/f0f483fe-1f25-4d9f-a404-1f70a6b9a331" />
+<img width="1878" height="593" alt="image" src="https://github.com/user-attachments/assets/f675ee78-0ca1-4002-94bd-c23c731558cb" />
