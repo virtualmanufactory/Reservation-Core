@@ -26,6 +26,6 @@ SAP_OBSOLETE_STATUS=NIEAKTUALNY
 SAP_SOURCE_TYPE=FILE
 SAP_SOURCE_FILE=./config/sap-feed.json
 # SAP_SOURCE_TYPE=HTTP
-# SAP_SOURCE_URL=https://sap-host.example/api/oddzialy
+# SAP_SOURCE_URL=https://sap-host.example/api/branches
 # SAP_SOURCE_USERNAME=
 # SAP_SOURCE_PASSWORD=

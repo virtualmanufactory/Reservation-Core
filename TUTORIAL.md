@@ -54,7 +54,7 @@ Uruchamia:
 
 ## Synchronizacja SAP → tabela `oddzial`
 
-Aplikacja zasila MySQL danymi z SAP **bez truncate+reload**:
+Aplikacja zasila MySQL danymi z SAP **bez truncate+reload** (encja `Branch` → tabela `oddzial`):
 - strategia `UPSERT` (domyślnie) lub `STAGING_SWAP` (staging → promocja w jednej transakcji),
 - rekordy spoza snapshotu: soft-delete (`status_na_stronie=NIEAKTUALNY`) lub hard-delete,
 - przy błędzie transakcja się wycofuje — dotychczasowe dane zostają dostępne,
@@ -71,9 +71,9 @@ Uruchomienie z MySQL:
 mvn spring-boot:run -Dspring-boot.run.profiles=mysql
 ```
 
-Ręczne zasilenie: `POST /api/sap/sync/oddzialy`  
+Ręczne zasilenie: `POST /api/sap/sync/branches`  
 Historia: `GET /api/sap/sync/runs`  
-Aktualne oddziały: `GET /api/sap/oddzialy`
+Aktualne oddziały: `GET /api/sap/branches`
 
 Usługa systemd (autostart OS): `deploy/reservation-core.service`  
 Schemat SQL: `deploy/mysql-oddzial-schema.sql`

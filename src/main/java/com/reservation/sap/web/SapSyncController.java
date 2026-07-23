@@ -2,8 +2,8 @@ package com.reservation.sap.web;
 
 import com.reservation.sap.config.SapSyncProperties;
 import com.reservation.sap.dto.SapSyncResultDto;
-import com.reservation.sap.model.Oddzial;
-import com.reservation.sap.repository.OddzialRepository;
+import com.reservation.sap.model.Branch;
+import com.reservation.sap.repository.BranchRepository;
 import com.reservation.sap.service.SapSyncException;
 import com.reservation.sap.service.SapSyncOrchestrator;
 import org.springframework.http.HttpStatus;
@@ -21,22 +21,22 @@ import java.util.Map;
 public class SapSyncController {
 
     private final SapSyncOrchestrator orchestrator;
-    private final OddzialRepository oddzialRepository;
+    private final BranchRepository branchRepository;
     private final SapSyncProperties properties;
 
     public SapSyncController(
             SapSyncOrchestrator orchestrator,
-            OddzialRepository oddzialRepository,
+            BranchRepository branchRepository,
             SapSyncProperties properties) {
         this.orchestrator = orchestrator;
-        this.oddzialRepository = oddzialRepository;
+        this.branchRepository = branchRepository;
         this.properties = properties;
     }
 
-    @PostMapping("/sync/oddzialy")
-    public ResponseEntity<?> syncOddzialy() {
+    @PostMapping("/sync/branches")
+    public ResponseEntity<?> syncBranches() {
         try {
-            return ResponseEntity.ok(orchestrator.syncOddzialy());
+            return ResponseEntity.ok(orchestrator.syncBranches());
         } catch (SapSyncException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getResult());
         }
@@ -47,9 +47,9 @@ public class SapSyncController {
         return orchestrator.recentRuns();
     }
 
-    @GetMapping("/oddzialy")
-    public List<Oddzial> listOddzialy() {
-        return oddzialRepository.findAllNotObsolete(properties.getObsoleteStatus());
+    @GetMapping("/branches")
+    public List<Branch> listBranches() {
+        return branchRepository.findAllNotObsolete(properties.getObsoleteStatus());
     }
 
     @GetMapping("/health")

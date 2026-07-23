@@ -1,7 +1,7 @@
 package com.reservation.sap.client;
 
 import com.reservation.sap.config.SapSyncProperties;
-import com.reservation.sap.dto.OddzialDto;
+import com.reservation.sap.dto.BranchDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -34,7 +34,7 @@ public class ConfigurableSapDataClient implements SapDataClient {
     }
 
     @Override
-    public List<OddzialDto> fetchOddzialy() {
+    public List<BranchDto> fetchBranches() {
         SapSyncProperties.Source source = properties.getSource();
         return switch (source.getType()) {
             case FILE -> readFromFile(source.getFilePath());
@@ -42,24 +42,24 @@ public class ConfigurableSapDataClient implements SapDataClient {
         };
     }
 
-    private List<OddzialDto> readFromFile(String filePath) {
+    private List<BranchDto> readFromFile(String filePath) {
         Path path = Path.of(filePath);
-        log.info("SAP feed: odczyt oddziałów z pliku {}", path.toAbsolutePath());
+        log.info("SAP feed: reading branches from file {}", path.toAbsolutePath());
         try {
             if (!Files.exists(path)) {
-                throw new IllegalStateException("Plik źródłowy SAP nie istnieje: " + path.toAbsolutePath());
+                throw new IllegalStateException("SAP source file does not exist: " + path.toAbsolutePath());
             }
             return parse(Files.readAllBytes(path));
         } catch (IOException ex) {
-            throw new IllegalStateException("Nie udało się odczytać pliku SAP: " + path, ex);
+            throw new IllegalStateException("Failed to read SAP file: " + path, ex);
         }
     }
 
-    private List<OddzialDto> readFromHttp(SapSyncProperties.Source source) {
+    private List<BranchDto> readFromHttp(SapSyncProperties.Source source) {
         if (source.getUrl() == null || source.getUrl().isBlank()) {
-            throw new IllegalStateException("app.sap.source.url nie jest ustawiony");
+            throw new IllegalStateException("app.sap.source.url is not set");
         }
-        log.info("SAP feed: pobieranie oddziałów z {}", source.getUrl());
+        log.info("SAP feed: downloading branches from {}", source.getUrl());
         try {
             HttpClient client = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofMillis(source.getConnectTimeoutMs()))
@@ -78,27 +78,27 @@ public class ConfigurableSapDataClient implements SapDataClient {
 
             HttpResponse<byte[]> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new IllegalStateException("SAP HTTP zwrócił status " + response.statusCode());
+                throw new IllegalStateException("SAP HTTP returned status " + response.statusCode());
             }
             return parse(response.body());
         } catch (IOException | InterruptedException ex) {
             if (ex instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            throw new IllegalStateException("Nie udało się pobrać danych SAP z HTTP", ex);
+            throw new IllegalStateException("Failed to download SAP data over HTTP", ex);
         }
     }
 
-    private List<OddzialDto> parse(byte[] bytes) {
+    private List<BranchDto> parse(byte[] bytes) {
         try {
-            List<OddzialDto> rows = objectMapper.readValue(bytes, new TypeReference<>() {
+            List<BranchDto> rows = objectMapper.readValue(bytes, new TypeReference<>() {
             });
             if (rows == null) {
-                throw new IllegalStateException("Pusty dokument JSON ze źródła SAP");
+                throw new IllegalStateException("Empty JSON document from SAP source");
             }
             return rows;
         } catch (RuntimeException ex) {
-            throw new IllegalStateException("Niepoprawny format danych SAP (oczekiwano tablicy JSON oddziałów)", ex);
+            throw new IllegalStateException("Invalid SAP data format (expected JSON array of branches)", ex);
         }
     }
 }

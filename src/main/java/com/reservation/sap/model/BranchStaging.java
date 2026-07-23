@@ -18,8 +18,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Tabela stagingowa — pełny snapshot z SAP ląduje tu przed promocją do {@link Oddzial}.
- * Przy błędzie transakcji dotychczasowe dane w {@code oddzial} pozostają nietknięte.
+ * Staging table for {@link Branch}. Snapshot is loaded here before promote;
+ * on transaction failure the live {@code oddzial} table stays unchanged.
  */
 @Entity
 @Table(name = "oddzial_staging")
@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class OddzialStaging {
+public class BranchStaging {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,56 +37,56 @@ public class OddzialStaging {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    /** Id rekordu docelowego z SAP (null = nowy rekord). */
+    /** Target row id from SAP (null only if feed omits it — validation requires it). */
     @Column(name = "source_id")
     private Integer sourceId;
 
     @Column(name = "oddzial", length = 256)
-    private String oddzial;
+    private String name;
 
     @Column(name = "nazwa_miejscowosci", length = 256)
-    private String nazwaMiejscowosci;
+    private String localityName;
 
     @Column(name = "kod_pocztowy", length = 256)
-    private String kodPocztowy;
+    private String postalCode;
 
     @Column(name = "nazwa_ulicy", length = 256)
-    private String nazwaUlicy;
+    private String streetName;
 
     @Column(name = "wojewodztwo", length = 256)
-    private String wojewodztwo;
+    private String province;
 
     @Lob
     @Column(name = "powiat", columnDefinition = "TEXT")
-    private String powiat;
+    private String county;
 
     @Column(name = "gmina", length = 256)
-    private String gmina;
+    private String commune;
 
     @Column(name = "rcs")
     private Integer rcs;
 
     @Column(name = "wspolczynnik_ciepla_spalania", precision = 10, scale = 2)
-    private BigDecimal wspolczynnikCieplaSpalania;
+    private BigDecimal combustionHeatCoefficient;
 
     @Column(name = "data_wstawienia")
-    private LocalDateTime dataWstawienia;
+    private LocalDateTime insertedAt;
 
     @Column(name = "status_na_stronie", length = 256)
-    private String statusNaStronie;
+    private String pageStatus;
 
     @Column(name = "Telefon", length = 15)
-    private String telefon;
+    private String phone;
 
     @Column(name = "email", length = 100)
     private String email;
 
     @Column(name = "Rodzaj_gazu", length = 1000)
-    private String rodzajGazu;
+    private String gasType;
 
     @Column(name = "Stopien_gazyfikacji", length = 1000)
-    private String stopienGazyfikacji;
+    private String gasificationDegree;
 
     @Column(name = "Punkty_wejscia", length = 1000)
-    private String punktyWejscia;
+    private String entryPoints;
 }

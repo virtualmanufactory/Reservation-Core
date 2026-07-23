@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Encja odpowiadająca tabeli MySQL {@code oddzial} (schemat docelowy zasilany z SAP).
+ * Entity mapped to MySQL table {@code oddzial} (SAP target dataset).
  */
 @Entity
 @Table(
@@ -33,61 +33,61 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Oddzial {
+public class Branch {
 
-    /** Id stabilne ze źródła SAP / istniejącej bazy MySQL (klucz UPSERT). */
+    /** Stable id from SAP / existing MySQL row (UPSERT key). */
     @Id
     @EqualsAndHashCode.Include
     @Column(name = "id", nullable = false)
     private Integer id;
 
     @Column(name = "oddzial", length = 256)
-    private String oddzial;
+    private String name;
 
     @Column(name = "nazwa_miejscowosci", length = 256)
-    private String nazwaMiejscowosci;
+    private String localityName;
 
     @Column(name = "kod_pocztowy", length = 256)
-    private String kodPocztowy;
+    private String postalCode;
 
     @Column(name = "nazwa_ulicy", length = 256)
-    private String nazwaUlicy;
+    private String streetName;
 
     @Column(name = "wojewodztwo", length = 256)
-    private String wojewodztwo;
+    private String province;
 
     @Lob
     @Column(name = "powiat", columnDefinition = "TEXT")
-    private String powiat;
+    private String county;
 
     @Column(name = "gmina", length = 256)
-    private String gmina;
+    private String commune;
 
-    /** tinyint(4) w MySQL */
+    /** MySQL tinyint(4) */
     @Column(name = "rcs")
     private Integer rcs;
 
     @Column(name = "wspolczynnik_ciepla_spalania", precision = 10, scale = 2)
-    private BigDecimal wspolczynnikCieplaSpalania;
+    private BigDecimal combustionHeatCoefficient;
 
     @Column(name = "data_wstawienia")
-    private LocalDateTime dataWstawienia;
+    private LocalDateTime insertedAt;
 
     @Column(name = "status_na_stronie", length = 256)
-    private String statusNaStronie;
+    private String pageStatus;
 
     @Column(name = "Telefon", length = 15)
-    private String telefon;
+    private String phone;
 
     @Column(name = "email", length = 100)
     private String email;
 
     @Column(name = "Rodzaj_gazu", length = 1000)
-    private String rodzajGazu;
+    private String gasType;
 
     @Column(name = "Stopien_gazyfikacji", length = 1000)
-    private String stopienGazyfikacji;
+    private String gasificationDegree;
 
     @Column(name = "Punkty_wejscia", length = 1000)
-    private String punktyWejscia;
+    private String entryPoints;
 }

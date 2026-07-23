@@ -2,7 +2,7 @@ package com.reservation.sap.service;
 
 import com.reservation.sap.client.SapDataClient;
 import com.reservation.sap.config.SapSyncProperties;
-import com.reservation.sap.dto.OddzialDto;
+import com.reservation.sap.dto.BranchDto;
 import com.reservation.sap.dto.SapSyncResultDto;
 import com.reservation.sap.model.SapSyncRunLog;
 import com.reservation.sap.model.SapSyncStatus;
@@ -14,41 +14,41 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Orkiestracja zasilenia SAP: pobranie → UPSERT/staging → log audytowy.
+ * Orchestrates SAP feed: fetch → UPSERT/staging → audit log.
  */
 @Service
 public class SapSyncOrchestrator {
 
     private static final Logger log = LoggerFactory.getLogger(SapSyncOrchestrator.class);
-    private static final String DATASET_ODDZIAL = "ODDZIAL";
+    private static final String DATASET_BRANCH = "BRANCH";
 
     private final SapDataClient sapDataClient;
-    private final OddzialSyncService oddzialSyncService;
+    private final BranchSyncService branchSyncService;
     private final SapSyncAuditService auditService;
     private final SapSyncProperties properties;
 
     public SapSyncOrchestrator(
             SapDataClient sapDataClient,
-            OddzialSyncService oddzialSyncService,
+            BranchSyncService branchSyncService,
             SapSyncAuditService auditService,
             SapSyncProperties properties) {
         this.sapDataClient = sapDataClient;
-        this.oddzialSyncService = oddzialSyncService;
+        this.branchSyncService = branchSyncService;
         this.auditService = auditService;
         this.properties = properties;
     }
 
-    public SapSyncResultDto syncOddzialy() {
+    public SapSyncResultDto syncBranches() {
         Instant startedAt = Instant.now();
         String strategy = properties.getStrategy().name();
-        log.info("SAP sync started (dataset={}, strategy={})", DATASET_ODDZIAL, strategy);
+        log.info("SAP sync started (dataset={}, strategy={})", DATASET_BRANCH, strategy);
 
         try {
-            List<OddzialDto> rows = sapDataClient.fetchOddzialy();
-            OddzialSyncService.Counters counters = oddzialSyncService.apply(rows);
+            List<BranchDto> rows = sapDataClient.fetchBranches();
+            BranchSyncService.Counters counters = branchSyncService.apply(rows);
 
             SapSyncRunLog runLog = auditService.save(SapSyncRunLog.builder()
-                    .dataset(DATASET_ODDZIAL)
+                    .dataset(DATASET_BRANCH)
                     .strategy(strategy)
                     .status(SapSyncStatus.SUCCESS)
                     .received(counters.getReceived())
@@ -56,7 +56,7 @@ public class SapSyncOrchestrator {
                     .updated(counters.getUpdated())
                     .deactivated(counters.getDeactivated())
                     .deleted(counters.getDeleted())
-                    .message("Zasilenie tabeli oddzial zakończone pomyślnie")
+                    .message("SAP branch feed completed successfully")
                     .startedAt(startedAt)
                     .finishedAt(Instant.now())
                     .build());
@@ -71,9 +71,9 @@ public class SapSyncOrchestrator {
                     counters.getDeleted());
             return toDto(runLog);
         } catch (Exception ex) {
-            log.error("SAP sync FAILED (dataset={}, strategy={}): {}", DATASET_ODDZIAL, strategy, ex.getMessage(), ex);
+            log.error("SAP sync FAILED (dataset={}, strategy={}): {}", DATASET_BRANCH, strategy, ex.getMessage(), ex);
             SapSyncRunLog runLog = auditService.save(SapSyncRunLog.builder()
-                    .dataset(DATASET_ODDZIAL)
+                    .dataset(DATASET_BRANCH)
                     .strategy(strategy)
                     .status(SapSyncStatus.FAILED)
                     .received(0)
@@ -85,7 +85,7 @@ public class SapSyncOrchestrator {
                     .startedAt(startedAt)
                     .finishedAt(Instant.now())
                     .build());
-            throw new SapSyncException("Zasilenie SAP nie powiodło się: " + ex.getMessage(), toDto(runLog), ex);
+            throw new SapSyncException("SAP feed failed: " + ex.getMessage(), toDto(runLog), ex);
         }
     }
 

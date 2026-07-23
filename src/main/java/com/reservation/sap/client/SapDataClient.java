@@ -1,10 +1,10 @@
 package com.reservation.sap.client;
 
-import com.reservation.sap.dto.OddzialDto;
+import com.reservation.sap.dto.BranchDto;
 
 import java.util.List;
 
 public interface SapDataClient {
 
-    List<OddzialDto> fetchOddzialy();
+    List<BranchDto> fetchBranches();
 }

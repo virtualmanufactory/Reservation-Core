@@ -28,11 +28,11 @@ public class SapSyncScheduler {
         if (!properties.isEnabled()) {
             return;
         }
-        log.info("Zaplanowane zasilenie SAP (oddzial) uruchomione");
+        log.info("Scheduled SAP branch sync triggered");
         try {
-            orchestrator.syncOddzialy();
+            orchestrator.syncBranches();
         } catch (SapSyncException ex) {
-            log.warn("Zaplanowane zasilenie SAP zakończone błędem (runId={})",
+            log.warn("Scheduled SAP sync failed (runId={})",
                     ex.getResult() != null ? ex.getResult().getRunId() : null);
         }
     }

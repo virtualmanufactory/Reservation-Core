@@ -2,11 +2,9 @@ package com.reservation.sap.service;
 
 import com.reservation.config.TestMailConfig;
 import com.reservation.sap.client.SapDataClient;
-import com.reservation.sap.dto.OddzialDto;
-import com.reservation.sap.dto.SapSyncResultDto;
-import com.reservation.sap.model.Oddzial;
-import com.reservation.sap.model.SapSyncStatus;
-import com.reservation.sap.repository.OddzialRepository;
+import com.reservation.sap.dto.BranchDto;
+import com.reservation.sap.model.Branch;
+import com.reservation.sap.repository.BranchRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,45 +40,44 @@ class SapSyncOrchestratorIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private OddzialRepository oddzialRepository;
+    private BranchRepository branchRepository;
 
     @Autowired
-    private AtomicReference<List<OddzialDto>> feedHolder;
+    private AtomicReference<List<BranchDto>> feedHolder;
 
     @BeforeEach
     void setUp() {
-        oddzialRepository.deleteAll();
+        branchRepository.deleteAll();
         feedHolder.set(List.of());
     }
 
     @Test
     void syncEndpointLoadsSnapshotAndKeepsDataOnNextPartialFeed() throws Exception {
-        OddzialDto first = dto(1, "Oddział 1");
-        OddzialDto second = dto(2, "Oddział 2");
+        BranchDto first = dto(1, "Branch 1");
+        BranchDto second = dto(2, "Branch 2");
         feedHolder.set(List.of(first, second));
 
-        mockMvc.perform(post("/api/sap/sync/oddzialy").contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(post("/api/sap/sync/branches").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SUCCESS"))
                 .andExpect(jsonPath("$.received").value(2))
                 .andExpect(jsonPath("$.inserted").value(2));
 
-        assertThat(oddzialRepository.findAll()).hasSize(2);
+        assertThat(branchRepository.findAll()).hasSize(2);
 
-        // Drugi feed bez id=2 → soft-delete
-        OddzialDto updated = dto(1, "Oddział 1 bis");
+        BranchDto updated = dto(1, "Branch 1 bis");
         feedHolder.set(List.of(updated));
 
-        mockMvc.perform(post("/api/sap/sync/oddzialy"))
+        mockMvc.perform(post("/api/sap/sync/branches"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.updated").value(1))
                 .andExpect(jsonPath("$.deactivated").value(1));
 
-        Oddzial kept = oddzialRepository.findById(1).orElseThrow();
-        assertThat(kept.getOddzial()).isEqualTo("Oddział 1 bis");
-        assertThat(oddzialRepository.findById(2).orElseThrow().getStatusNaStronie()).isEqualTo("NIEAKTUALNY");
+        Branch kept = branchRepository.findById(1).orElseThrow();
+        assertThat(kept.getName()).isEqualTo("Branch 1 bis");
+        assertThat(branchRepository.findById(2).orElseThrow().getPageStatus()).isEqualTo("NIEAKTUALNY");
 
-        mockMvc.perform(get("/api/sap/oddzialy"))
+        mockMvc.perform(get("/api/sap/branches"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1));
@@ -92,56 +89,56 @@ class SapSyncOrchestratorIntegrationTest {
 
     @Test
     void failedSyncDoesNotWipeExistingRows() throws Exception {
-        oddzialRepository.save(Oddzial.builder()
+        branchRepository.save(Branch.builder()
                 .id(9)
-                .oddzial("Istniejący")
-                .statusNaStronie("AKTUALNY")
-                .dataWstawienia(LocalDateTime.now())
+                .name("Existing")
+                .pageStatus("AKTUALNY")
+                .insertedAt(LocalDateTime.now())
                 .build());
 
-        OddzialDto bad = dto(9, "X");
-        OddzialDto dup = dto(9, "Y");
+        BranchDto bad = dto(9, "X");
+        BranchDto dup = dto(9, "Y");
         feedHolder.set(List.of(bad, dup));
 
-        mockMvc.perform(post("/api/sap/sync/oddzialy"))
+        mockMvc.perform(post("/api/sap/sync/branches"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.status").value("FAILED"));
 
-        assertThat(oddzialRepository.findById(9).orElseThrow().getOddzial()).isEqualTo("Istniejący");
+        assertThat(branchRepository.findById(9).orElseThrow().getName()).isEqualTo("Existing");
     }
 
-    private static OddzialDto dto(int id, String name) {
-        OddzialDto dto = new OddzialDto();
+    private static BranchDto dto(int id, String name) {
+        BranchDto dto = new BranchDto();
         dto.setId(id);
-        dto.setOddzial(name);
-        dto.setNazwaMiejscowosci("Miasto");
-        dto.setKodPocztowy("00-001");
-        dto.setNazwaUlicy("Ulica");
-        dto.setWojewodztwo("mazowieckie");
-        dto.setPowiat("powiat");
-        dto.setGmina("gmina");
+        dto.setName(name);
+        dto.setLocalityName("City");
+        dto.setPostalCode("00-001");
+        dto.setStreetName("Street");
+        dto.setProvince("mazowieckie");
+        dto.setCounty("county");
+        dto.setCommune("commune");
         dto.setRcs(0);
-        dto.setWspolczynnikCieplaSpalania(new BigDecimal("1.23"));
-        dto.setDataWstawienia(LocalDateTime.of(2026, 7, 23, 10, 0));
-        dto.setStatusNaStronie("AKTUALNY");
-        dto.setTelefon("221234567");
+        dto.setCombustionHeatCoefficient(new BigDecimal("1.23"));
+        dto.setInsertedAt(LocalDateTime.of(2026, 7, 23, 10, 0));
+        dto.setPageStatus("AKTUALNY");
+        dto.setPhone("221234567");
         dto.setEmail("a@b.pl");
-        dto.setRodzajGazu("Lw");
-        dto.setStopienGazyfikacji("średni");
-        dto.setPunktyWejscia("PW");
+        dto.setGasType("Lw");
+        dto.setGasificationDegree("medium");
+        dto.setEntryPoints("PW");
         return dto;
     }
 
     @TestConfiguration
     static class SapClientTestConfig {
         @Bean
-        AtomicReference<List<OddzialDto>> feedHolder() {
+        AtomicReference<List<BranchDto>> feedHolder() {
             return new AtomicReference<>(new ArrayList<>());
         }
 
         @Bean
         @Primary
-        SapDataClient sapDataClient(AtomicReference<List<OddzialDto>> feedHolder) {
+        SapDataClient sapDataClient(AtomicReference<List<BranchDto>> feedHolder) {
             return () -> List.copyOf(feedHolder.get());
         }
     }
