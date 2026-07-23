@@ -2,14 +2,32 @@
 #   cp podman/reservation-core-compose.yaml.example podman/reservation-core-compose.yaml
 # Uruchom:
 #   podman compose -f podman/reservation-core-compose.yaml up -d
-# Stop:
-#   podman compose -f podman/reservation-core-compose.yaml down
 #
 # Usługi:
-#   - PostgreSQL  → localhost:5432  (zgodnie z application.properties)
+#   - MySQL       → localhost:3306  (profil Spring: mysql)
+#   - PostgreSQL  → localhost:5432  (opcjonalnie, dotychczasowy dev)
 #   - MailHog     → SMTP localhost:1025, UI http://localhost:8025
 
 services:
+  mysql:
+    image: docker.io/library/mysql:8.4
+    container_name: reservation-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: reservation_core_db
+      MYSQL_USER: reservation
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ../mysql-data:/var/lib/mysql
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   postgres:
     image: docker.io/library/postgres:16-alpine
     container_name: reservation-postgres
@@ -26,12 +44,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    profiles: ["postgres"]
 
   mailhog:
     image: docker.io/mailhog/mailhog:v1.0.1
     container_name: reservation-mailhog
     ports:
-      - "1025:1025"   # SMTP
-      - "8025:8025"   # Web UI
+      - "1025:1025"
+      - "8025:8025"
     logging:
       driver: none

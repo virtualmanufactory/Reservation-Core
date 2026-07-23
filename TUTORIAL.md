@@ -40,7 +40,7 @@ Konfiguracja: `app.cleanup.*`
 
 ## PostgreSQL + MailHog (Podman)
 
-Lokalny plik `podman/reservation-core-compose.yaml` jest w `.gitignore` (wraz z `postgres-data/`).
+Lokalny plik `podman/reservation-core-compose.yaml` jest w `.gitignore` (wraz z `postgres-data/` / `mysql-data/`).
 
 ```bash
 cp podman/reservation-core-compose.yaml.example podman/reservation-core-compose.yaml
@@ -48,17 +48,42 @@ podman compose -f podman/reservation-core-compose.yaml up -d
 ```
 
 Uruchamia:
-- **PostgreSQL** — `localhost:5432`
+- **MySQL** — `localhost:3306` (docelowa baza zasilana z SAP, profil `mysql`)
 - **MailHog** — SMTP `localhost:1025`, UI http://localhost:8025
+- **PostgreSQL** — opcjonalnie: `podman compose --profile postgres ...`
 
-Bez działającej bazy Spring Boot **nie wystartuje** — wtedy `http://localhost:8080/restaurant/` nie otworzy się (connection refused).
+## Synchronizacja SAP → tabela `oddzial`
+
+Aplikacja zasila MySQL danymi z SAP **bez truncate+reload**:
+- strategia `UPSERT` (domyślnie) lub `STAGING_SWAP` (staging → promocja w jednej transakcji),
+- rekordy spoza snapshotu: soft-delete (`status_na_stronie=NIEAKTUALNY`) lub hard-delete,
+- przy błędzie transakcja się wycofuje — dotychczasowe dane zostają dostępne,
+- przebieg i błędy: logi `com.reservation.sap` + tabela `sap_sync_run_log`.
+
+Konfiguracja (hasła poza kodem):
+```bash
+cp config/application-local.properties.example config/application-local.properties
+cp config/sap-feed.json.example config/sap-feed.json
+```
+
+Uruchomienie z MySQL:
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=mysql
+```
+
+Ręczne zasilenie: `POST /api/sap/sync/oddzialy`  
+Historia: `GET /api/sap/sync/runs`  
+Aktualne oddziały: `GET /api/sap/oddzialy`
+
+Usługa systemd (autostart OS): `deploy/reservation-core.service`  
+Schemat SQL: `deploy/mysql-oddzial-schema.sql`
 
 ## Uruchomienie
 
 ```bash
-# 1) Postgres + MailHog (powyżej)
-# 2) Aplikacja (domyślnie wysyła maile do MailHog)
-mvn spring-boot:run
+# 1) MySQL + MailHog (powyżej)
+# 2) Aplikacja
+mvn spring-boot:run -Dspring-boot.run.profiles=mysql
 ```
 
 - Panel: http://localhost:8080/restaurant/

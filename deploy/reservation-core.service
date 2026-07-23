@@ -1,0 +1,30 @@
+[Unit]
+Description=Reservation Core (SAP sync / Spring Boot)
+Documentation=file:///opt/reservation-core/README.md
+After=network-online.target mysql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=reservation
+Group=reservation
+WorkingDirectory=/opt/reservation-core
+
+# Konfiguracja zewnętrzna — hasła i hosty poza JAR
+Environment=SPRING_PROFILES_ACTIVE=mysql
+Environment=SPRING_CONFIG_ADDITIONAL_LOCATION=file:/etc/reservation-core/
+# Alternatywnie zmienne DB_* / SAP_* w EnvironmentFile:
+EnvironmentFile=-/etc/reservation-core/reservation-core.env
+
+ExecStart=/usr/bin/java -jar /opt/reservation-core/reservation-core.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=10
+
+# Logi journald + plik aplikacji (logging.file.name opcjonalnie w config)
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=reservation-core
+
+[Install]
+WantedBy=multi-user.target

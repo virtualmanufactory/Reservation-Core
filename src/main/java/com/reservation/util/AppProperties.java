@@ -9,6 +9,7 @@ public class AppProperties {
     private String baseUrl = "http://localhost:8080";
     private String defaultLocale = "pl";
     private Cleanup cleanup = new Cleanup();
+    // SAP sync settings live in SapSyncProperties (prefix app.sap)
 
     public String getBaseUrl() {
         return baseUrl;

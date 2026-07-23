@@ -1,0 +1,31 @@
+# Skopiuj do application-local.properties (gitignore) i uzupełnij.
+# cp config/application-local.properties.example config/application-local.properties
+
+# --- MySQL (profil mysql) ---
+# spring.profiles.active=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=reservation_core_db
+DB_USER=reservation
+DB_PASSWORD=zmien-mnie
+# albo pełny URL:
+# DB_URL=jdbc:mysql://localhost:3306/reservation_core_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+
+# --- PostgreSQL (domyślny profil deweloperski) ---
+# DB_URL=jdbc:postgresql://localhost:5432/reservation_core_db
+# DB_USER=postgres
+# DB_PASSWORD=root
+# DB_DRIVER=org.postgresql.Driver
+
+# --- SAP feed ---
+SAP_SYNC_ENABLED=true
+SAP_SYNC_STRATEGY=UPSERT
+# SAP_SYNC_STRATEGY=STAGING_SWAP
+SAP_OBSOLETE_MODE=SOFT_DELETE
+SAP_OBSOLETE_STATUS=NIEAKTUALNY
+SAP_SOURCE_TYPE=FILE
+SAP_SOURCE_FILE=./config/sap-feed.json
+# SAP_SOURCE_TYPE=HTTP
+# SAP_SOURCE_URL=https://sap-host.example/api/oddzialy
+# SAP_SOURCE_USERNAME=
+# SAP_SOURCE_PASSWORD=

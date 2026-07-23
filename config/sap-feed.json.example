@@ -1,0 +1,21 @@
+[
+  {
+    "id": 1,
+    "oddzial": "Oddział przykładowy",
+    "nazwa_miejscowosci": "Warszawa",
+    "kod_pocztowy": "00-001",
+    "nazwa_ulicy": "Testowa 1",
+    "wojewodztwo": "mazowieckie",
+    "powiat": "warszawski",
+    "gmina": "Warszawa",
+    "rcs": 1,
+    "wspolczynnik_ciepla_spalania": 10.50,
+    "data_wstawienia": "2026-07-23T08:00:00",
+    "status_na_stronie": "AKTUALNY",
+    "Telefon": "221234567",
+    "email": "oddzial@example.com",
+    "Rodzaj_gazu": "E",
+    "Stopien_gazyfikacji": "wysoki",
+    "Punkty_wejscia": "PW-1"
+  }
+]
